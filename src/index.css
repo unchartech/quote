@@ -9,7 +9,7 @@
 
 .cdx-quote__text {
     min-height: 58px;
-    margin-bottom: 10px;
+    margin-bottom: 0;
     font-style: italic;
     background-color: #f7f9fa;
     border-radius: 4px;
