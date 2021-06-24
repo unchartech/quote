@@ -3,6 +3,12 @@
  */
 require('./index.css').toString();
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+if (isDevelopment) {
+  console.log('@editorjs/quote fork');
+}
+
 /**
  * @class Quote
  * @classdesc Quote Tool for Editor.js
@@ -86,6 +92,7 @@ class Quote {
   }
 
   /**
+   * @Deprecated
    * Allowed quote alignments
    *
    * @public
@@ -99,6 +106,7 @@ class Quote {
   }
 
   /**
+   * @Deprecated
    * Default quote alignment
    *
    * @public
@@ -124,7 +132,7 @@ class Quote {
        * @returns {string}
        */
       export: function (quoteData) {
-        return quoteData.caption ? `${quoteData.text} — ${quoteData.caption}` : quoteData.text;
+        return quoteData.text;
       },
     };
   }
@@ -153,16 +161,7 @@ class Quote {
    * @returns {*[]}
    */
   get settings() {
-    return [
-      {
-        name: 'left',
-        icon: `<svg width="16" height="11" viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg" ><path d="M1.069 0H13.33a1.069 1.069 0 0 1 0 2.138H1.07a1.069 1.069 0 1 1 0-2.138zm0 4.275H9.03a1.069 1.069 0 1 1 0 2.137H1.07a1.069 1.069 0 1 1 0-2.137zm0 4.275h9.812a1.069 1.069 0 0 1 0 2.137H1.07a1.069 1.069 0 0 1 0-2.137z" /></svg>`,
-      },
-      {
-        name: 'center',
-        icon: `<svg width="16" height="11" viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg" ><path d="M1.069 0H13.33a1.069 1.069 0 0 1 0 2.138H1.07a1.069 1.069 0 1 1 0-2.138zm3.15 4.275h5.962a1.069 1.069 0 0 1 0 2.137H4.22a1.069 1.069 0 1 1 0-2.137zM1.069 8.55H13.33a1.069 1.069 0 0 1 0 2.137H1.07a1.069 1.069 0 0 1 0-2.137z"/></svg>`,
-      },
-    ];
+    return [];
   }
 
   /**
@@ -174,21 +173,14 @@ class Quote {
    *   api - Editor.js API
    *   readOnly - read-only mode flag
    */
-  constructor({ data, config, api, readOnly}) {
-    const { ALIGNMENTS, DEFAULT_ALIGNMENT } = Quote;
-
+  constructor({data, config, api, readOnly}) {
     this.api = api;
     this.readOnly = readOnly;
 
     this.quotePlaceholder = config.quotePlaceholder || Quote.DEFAULT_QUOTE_PLACEHOLDER;
-    this.captionPlaceholder = config.captionPlaceholder || Quote.DEFAULT_CAPTION_PLACEHOLDER;
 
     this.data = {
       text: data.text || '',
-      caption: data.caption || '',
-      alignment: Object.values(ALIGNMENTS).includes(data.alignment) && data.alignment ||
-      config.defaultAlignment ||
-      DEFAULT_ALIGNMENT,
     };
   }
 
@@ -203,16 +195,10 @@ class Quote {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
     });
-    const caption = this._make('div', [this.CSS.input, this.CSS.caption], {
-      contentEditable: !this.readOnly,
-      innerHTML: this.data.caption,
-    });
 
     quote.dataset.placeholder = this.quotePlaceholder;
-    caption.dataset.placeholder = this.captionPlaceholder;
 
     container.appendChild(quote);
-    container.appendChild(caption);
 
     return container;
   }
@@ -225,11 +211,9 @@ class Quote {
    */
   save(quoteElement) {
     const text = quoteElement.querySelector(`.${this.CSS.text}`);
-    const caption = quoteElement.querySelector(`.${this.CSS.caption}`);
 
     return Object.assign(this.data, {
       text: text.innerHTML,
-      caption: caption.innerHTML,
     });
   }
 
@@ -256,7 +240,7 @@ class Quote {
    * @returns {HTMLDivElement}
    */
   renderSettings() {
-    const wrapper = this._make('div', [ this.CSS.settingsWrapper ], {});
+    const wrapper = this._make('div', [this.CSS.settingsWrapper], {});
     const capitalize = str => str[0].toUpperCase() + str.substr(1);
 
     this.settings
@@ -277,7 +261,7 @@ class Quote {
           this._toggleTune(this.settings[index].name);
 
           elements.forEach((el, i) => {
-            const { name } = this.settings[i];
+            const {name} = this.settings[i];
 
             el.classList.toggle(this.CSS.settingsButtonActive, name === this.data.alignment);
           });

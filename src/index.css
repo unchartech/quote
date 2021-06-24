@@ -1,39 +1,44 @@
 .cdx-quote-icon svg {
-  transform: rotate(180deg);
+    transform: rotate(180deg);
 }
 
 .cdx-quote {
-  margin: 0;
+    margin: 0;
+    background-color: inherit;
 }
 
 .cdx-quote__text {
-  min-height: 158px;
-  margin-bottom: 10px;
+    min-height: 58px;
+    margin-bottom: 10px;
+    font-style: italic;
+    background-color: #f7f9fa;
+    border-radius: 4px;
 }
 
-.cdx-quote__caption {}
+.cdx-quote__caption {
+}
 
-.cdx-quote [contentEditable=true][data-placeholder]::before{
-  position: absolute;
-  content: attr(data-placeholder);
-  color: #707684;
-  font-weight: normal;
-  opacity: 0;
+.cdx-quote [contentEditable=true][data-placeholder]::before {
+    position: absolute;
+    content: attr(data-placeholder);
+    color: #707684;
+    font-weight: normal;
+    opacity: 0;
 }
 
 .cdx-quote [contentEditable=true][data-placeholder]:empty::before {
-  opacity: 1;
+    opacity: 1;
 }
 
 .cdx-quote [contentEditable=true][data-placeholder]:empty:focus::before {
-  opacity: 0;
+    opacity: 0;
 }
 
 
 .cdx-quote-settings {
-  display: flex;
+    display: flex;
 }
 
 .cdx-quote-settings .cdx-settings-button {
-  width: 50%;
+    width: 50%;
 }
