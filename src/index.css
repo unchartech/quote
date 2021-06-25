@@ -3,18 +3,74 @@
 }
 
 .cdx-quote {
-    margin: 0;
-    background-color: inherit;
+    padding: 0;
+    background-color: #f7f9fa;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    margin: 0 0 10px;
+}
+
+.cdx-quote__caption-wrapper {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    overflow: hidden;
+    width: 100%;
+    padding: 0;
+}
+
+.cdx-quote.cdx-quote--no-caption .cdx-quote__caption-wrapper{
+    display: none;
+}
+
+.cdx-quote.cdx-quote--has-caption .cdx-quote__caption--left{
+    display: none;
+}
+
+.cdx-quote.cdx-quote--has-caption .cdx-quote__caption--right{
+    width: 100%;
+}
+
+.cdx-quote.cdx-quote--has-captions {
+
 }
 
 .cdx-quote__text {
     min-height: 58px;
     margin-bottom: 0;
-    background-color: #f7f9fa;
-    border-radius: 4px;
+    background-color: inherit;
+    border: none;
 }
 
-.cdx-quote__caption {
+.cdx-quote__caption--left {
+    border: none;
+    width: 20%;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cdx-quote__caption--right {
+    border: none;
+    text-align: right;
+    overflow: hidden;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+}
+
+.cdx-quote__caption--left[contentEditable=true][data-placeholder]:focus, .cdx-quote__caption--right[contentEditable=true][data-placeholder]:focus {
+    overflow: auto;
+    white-space: normal;
+    text-overflow: inherit;
+}
+
+.cdx-quote .cdx-quote__caption--right[contentEditable=true][data-placeholder]::before {
+    position: absolute !important;
+    right: 105px;
+}
+
+.cdx-quote .cdx-quote__caption--right[contentEditable=true][data-placeholder]:empty::before {
+    opacity: 1;
 }
 
 .cdx-quote [contentEditable=true][data-placeholder]::before {
@@ -33,6 +89,9 @@
     opacity: 0;
 }
 
+.cdx-quote [contentEditable=true][data-placeholder]:focus {
+    background-color: #fefefe;
+}
 
 .cdx-quote-settings {
     display: flex;

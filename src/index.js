@@ -5,6 +5,12 @@ require('./index.css').toString();
 
 const isDevelopment = process.env.NODE_ENV === 'development';
 
+const QUOTE_SETTINGS = {
+  NO_CAPTION: 'NO_CAPTION',
+  WITH_CAPTION: 'WITH_CAPTION',
+  WITH_CAPTION_TEMPLATE: 'WITH_CAPTION_TEMPLATE',
+}
+
 if (isDevelopment) {
   console.log('@editorjs/quote fork');
 }
@@ -25,7 +31,7 @@ if (isDevelopment) {
  * @description Quote Tool`s initial configuration
  * @property {string} quotePlaceholder - placeholder to show in quote`s text input
  * @property {string} captionPlaceholder - placeholder to show in quote`s caption input
- * @property {'center'|'left'} defaultAlignment - alignment to use as default
+ * @property {QUOTE_SETTINGS} defaultAlignment - alignment to use as default
  */
 class Quote {
   /**
@@ -92,28 +98,23 @@ class Quote {
   }
 
   /**
-   * @Deprecated
-   * Allowed quote alignments
+   * Allowed quote options
    *
    * @public
-   * @returns {{left: string, center: string}}
+   * @returns {{noCaption: string, hasCaption: string, hasCaptions: string}}
    */
-  static get ALIGNMENTS() {
-    return {
-      left: 'left',
-      center: 'center',
-    };
+  static get CAPTIONS() {
+    return QUOTE_SETTINGS;
   }
 
   /**
-   * @Deprecated
    * Default quote alignment
    *
    * @public
    * @returns {string}
    */
-  static get DEFAULT_ALIGNMENT() {
-    return Quote.ALIGNMENTS.left;
+  static get DEFAULT_CAPTIONS() {
+    return Quote.CAPTIONS['with_caption_template'];
   }
 
   /**
@@ -132,7 +133,7 @@ class Quote {
        * @returns {string}
        */
       export: function (quoteData) {
-        return quoteData.text;
+        return quoteData.captionLeft ? `${quoteData.text} — ${quoteData.captionLeft} — ${quoteData.captionRight}` : quoteData.text;
       },
     };
   }
@@ -146,12 +147,17 @@ class Quote {
     return {
       baseClass: this.api.styles.block,
       wrapper: 'cdx-quote',
+      captionWrapper: 'cdx-quote__caption-wrapper',
       text: 'cdx-quote__text',
       input: this.api.styles.input,
-      caption: 'cdx-quote__caption',
+      captionLeft: 'cdx-quote__caption--left',
+      captionRight: 'cdx-quote__caption--right',
       settingsWrapper: 'cdx-quote-settings',
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
+      [QUOTE_SETTINGS.NO_CAPTION]: 'cdx-quote--no-caption',
+      [QUOTE_SETTINGS.WITH_CAPTION]: 'cdx-quote--has-caption',
+      [QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE]: 'cdx-quote--has-captions',
     };
   }
 
@@ -161,7 +167,20 @@ class Quote {
    * @returns {*[]}
    */
   get settings() {
-    return [];
+    return [
+      {
+        name: QUOTE_SETTINGS.NO_CAPTION,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/></svg>`,
+      },
+      {
+        name: QUOTE_SETTINGS.WITH_CAPTION,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H5V7h14v10z"/></svg>`,
+      },
+      {
+        name: QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="24" height="24" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M3 5v14h19V5H3m2 2h15v4H5V7m0 10v-4h4v4H5m6 0v-4h9v4h-9z"/></svg>`,
+      },
+    ];
   }
 
   /**
@@ -174,13 +193,20 @@ class Quote {
    *   readOnly - read-only mode flag
    */
   constructor({data, config, api, readOnly}) {
+    const {CAPTIONS, DEFAULT_CAPTIONS} = Quote;
+
     this.api = api;
     this.readOnly = readOnly;
 
     this.quotePlaceholder = config.quotePlaceholder || Quote.DEFAULT_QUOTE_PLACEHOLDER;
+    this.captionPlaceholder = config.captionPlaceholder || Quote.DEFAULT_CAPTION_PLACEHOLDER;
 
     this.data = {
       text: data.text || '',
+      captionLeft: data.captionLeft || '',
+      captionRight: data.captionRight || '',
+      captionView: Object.values(CAPTIONS).includes(data.captionView) && data.captionView ||
+        DEFAULT_CAPTIONS,
     };
   }
 
@@ -190,15 +216,35 @@ class Quote {
    * @returns {Element}
    */
   render() {
-    const container = this._make('blockquote', [this.CSS.baseClass, this.CSS.wrapper]);
+    const container = this._make('blockquote', [
+      this.CSS.baseClass,
+      this.CSS.wrapper,
+      this.CSS[QUOTE_SETTINGS[this.data.captionView]]
+    ]);
     const quote = this._make('div', [this.CSS.input, this.CSS.text], {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
     });
+    const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
+    const captionLeft = this._make('div', [this.CSS.input, this.CSS.captionLeft], {
+      contentEditable: !this.readOnly,
+      innerHTML: this.data.captionLeft,
+    });
+    const captionRight = this._make('div', [this.CSS.input, this.CSS.captionRight], {
+      contentEditable: !this.readOnly,
+      innerHTML: this.data.captionRight,
+    });
 
     quote.dataset.placeholder = this.quotePlaceholder;
+    captionLeft.dataset.placeholder = this.captionPlaceholder;
+    captionRight.dataset.placeholder = this.captionPlaceholder;
 
     container.appendChild(quote);
+    captionWrapper.appendChild(captionLeft);
+    captionWrapper.appendChild(captionRight);
+    container.appendChild(captionWrapper);
+
+    this._container = container;
 
     return container;
   }
@@ -211,9 +257,13 @@ class Quote {
    */
   save(quoteElement) {
     const text = quoteElement.querySelector(`.${this.CSS.text}`);
+    const captionLeft = quoteElement.querySelector(`.${this.CSS.captionLeft}`);
+    const captionRight = quoteElement.querySelector(`.${this.CSS.captionRight}`);
 
     return Object.assign(this.data, {
       text: text.innerHTML,
+      captionLeft: captionLeft.innerHTML,
+      captionRight: captionRight.innerHTML,
     });
   }
 
@@ -225,10 +275,13 @@ class Quote {
       text: {
         br: true,
       },
-      caption: {
+      captionLeft: {
         br: true,
       },
-      alignment: {},
+      captionRight: {
+        br: true,
+      },
+      captionView: {},
     };
   }
 
@@ -247,10 +300,10 @@ class Quote {
       .map(tune => {
         const el = this._make('div', this.CSS.settingsButton, {
           innerHTML: tune.icon,
-          title: `${capitalize(tune.name)} alignment`,
+          title: capitalize(tune.name.toLowerCase()).replace(/(_)/g, ' '),
         });
 
-        el.classList.toggle(this.CSS.settingsButtonActive, tune.name === this.data.alignment);
+        el.classList.toggle(this.CSS.settingsButtonActive, tune.name === this.data.captionView);
 
         wrapper.appendChild(el);
 
@@ -263,7 +316,7 @@ class Quote {
           elements.forEach((el, i) => {
             const {name} = this.settings[i];
 
-            el.classList.toggle(this.CSS.settingsButtonActive, name === this.data.alignment);
+            el.classList.toggle(this.CSS.settingsButtonActive, name === this.data.captionView);
           });
         });
       });
@@ -278,7 +331,17 @@ class Quote {
    * @private
    */
   _toggleTune(tune) {
-    this.data.alignment = tune;
+    this.data.captionView = tune;
+
+    if (!Object.values(QUOTE_SETTINGS).includes(tune)) return;
+
+    const captionClasses = [
+      this.CSS[QUOTE_SETTINGS.NO_CAPTION],
+      this.CSS[QUOTE_SETTINGS.WITH_CAPTION],
+      this.CSS[QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE],
+    ]
+    this._container.classList.remove(...captionClasses);
+    this._container.classList.add(this.CSS[tune]);
   }
 
   /**
