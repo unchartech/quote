@@ -43,6 +43,7 @@
 }
 
 .cdx-quote__caption--left {
+    font-size: 0.8rem;
     border: none;
     width: 20%;
     overflow: hidden;
@@ -51,6 +52,7 @@
 }
 
 .cdx-quote__caption--right {
+    font-size: 0.8rem;
     border: none;
     text-align: right;
     overflow: hidden;
