@@ -152,6 +152,8 @@ class Quote {
       input: this.api.styles.input,
       captionLeft: 'cdx-quote__caption--left',
       captionRight: 'cdx-quote__caption--right',
+      captionImage: 'cdx-quote__caption--image',
+      imageQuote: 'cdx-quote__image--quote',
       settingsWrapper: 'cdx-quote-settings',
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
@@ -205,6 +207,7 @@ class Quote {
       text: data.text || '',
       captionLeft: data.captionLeft || '',
       captionRight: data.captionRight || '',
+      imageUrl: data.imageUrl || null,
       captionView: Object.values(CAPTIONS).includes(data.captionView) && data.captionView ||
         DEFAULT_CAPTIONS,
     };
@@ -224,6 +227,9 @@ class Quote {
     const quote = this._make('div', [this.CSS.input, this.CSS.text], {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
+      style: {
+        paddingRight: this.data.imageUrl ? '76px' : '12px'
+      }
     });
     const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
     const captionLeft = this._make('div', [this.CSS.input, this.CSS.captionLeft], {
@@ -234,12 +240,21 @@ class Quote {
       contentEditable: !this.readOnly,
       innerHTML: this.data.captionRight,
     });
+    const captionImage = this._make('img', [this.CSS.captionImage], {
+      contentEditable: false,
+      src: this.data.imageUrl,
+    });
+    const imageQuote = this._make('div', [this.CSS.imageQuote], {
+      contentEditable: false,
+    });
 
     quote.dataset.placeholder = this.quotePlaceholder;
     captionLeft.dataset.placeholder = this.captionPlaceholder;
     captionRight.dataset.placeholder = this.captionPlaceholder;
 
     container.appendChild(quote);
+    container.appendChild(imageQuote);
+    container.appendChild(captionImage);
     captionWrapper.appendChild(captionLeft);
     captionWrapper.appendChild(captionRight);
     container.appendChild(captionWrapper);
@@ -259,11 +274,13 @@ class Quote {
     const text = quoteElement.querySelector(`.${this.CSS.text}`);
     const captionLeft = quoteElement.querySelector(`.${this.CSS.captionLeft}`);
     const captionRight = quoteElement.querySelector(`.${this.CSS.captionRight}`);
+    const captionImage = quoteElement.querySelector(`.${this.CSS.captionImage}`);
 
     return Object.assign(this.data, {
       text: text.innerHTML,
       captionLeft: captionLeft.innerHTML,
       captionRight: captionRight.innerHTML,
+      imageUrl: captionImage ? captionImage.getAttribute('src') : null,
     });
   }
 
