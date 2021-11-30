@@ -254,7 +254,9 @@ class Quote {
 
     container.appendChild(quote);
     container.appendChild(imageQuote);
-    container.appendChild(captionImage);
+    if(this.data.imageUrl) {
+      container.appendChild(captionImage);
+    }
     captionWrapper.appendChild(captionLeft);
     captionWrapper.appendChild(captionRight);
     container.appendChild(captionWrapper);
