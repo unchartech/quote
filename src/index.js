@@ -3,6 +3,18 @@
  */
 require('./index.css').toString();
 
+const isDevelopment = process.env.NODE_ENV === 'development';
+
+const QUOTE_SETTINGS = {
+  NO_CAPTION: 'NO_CAPTION',
+  WITH_CAPTION: 'WITH_CAPTION',
+  WITH_CAPTION_TEMPLATE: 'WITH_CAPTION_TEMPLATE',
+}
+
+if (isDevelopment) {
+  console.log('@editorjs/quote fork');
+}
+
 /**
  * @class Quote
  * @classdesc Quote Tool for Editor.js
@@ -19,7 +31,7 @@ require('./index.css').toString();
  * @description Quote Tool`s initial configuration
  * @property {string} quotePlaceholder - placeholder to show in quote`s text input
  * @property {string} captionPlaceholder - placeholder to show in quote`s caption input
- * @property {'center'|'left'} defaultAlignment - alignment to use as default
+ * @property {QUOTE_SETTINGS} defaultAlignment - alignment to use as default
  */
 class Quote {
   /**
@@ -86,16 +98,13 @@ class Quote {
   }
 
   /**
-   * Allowed quote alignments
+   * Allowed quote options
    *
    * @public
-   * @returns {{left: string, center: string}}
+   * @returns {{noCaption: string, hasCaption: string, hasCaptions: string}}
    */
-  static get ALIGNMENTS() {
-    return {
-      left: 'left',
-      center: 'center',
-    };
+  static get CAPTIONS() {
+    return QUOTE_SETTINGS;
   }
 
   /**
@@ -104,8 +113,8 @@ class Quote {
    * @public
    * @returns {string}
    */
-  static get DEFAULT_ALIGNMENT() {
-    return Quote.ALIGNMENTS.left;
+  static get DEFAULT_CAPTIONS() {
+    return Quote.CAPTIONS['with_caption_template'];
   }
 
   /**
@@ -124,7 +133,7 @@ class Quote {
        * @returns {string}
        */
       export: function (quoteData) {
-        return quoteData.caption ? `${quoteData.text} — ${quoteData.caption}` : quoteData.text;
+        return quoteData.captionLeft ? `${quoteData.text} — ${quoteData.captionLeft} — ${quoteData.captionRight}` : quoteData.text;
       },
     };
   }
@@ -138,12 +147,19 @@ class Quote {
     return {
       baseClass: this.api.styles.block,
       wrapper: 'cdx-quote',
+      captionWrapper: 'cdx-quote__caption-wrapper',
       text: 'cdx-quote__text',
       input: this.api.styles.input,
-      caption: 'cdx-quote__caption',
+      captionLeft: 'cdx-quote__caption--left',
+      captionRight: 'cdx-quote__caption--right',
+      captionImage: 'cdx-quote__caption--image',
+      imageQuote: 'cdx-quote__image--quote',
       settingsWrapper: 'cdx-quote-settings',
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
+      [QUOTE_SETTINGS.NO_CAPTION]: 'cdx-quote--no-caption',
+      [QUOTE_SETTINGS.WITH_CAPTION]: 'cdx-quote--has-caption',
+      [QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE]: 'cdx-quote--has-captions',
     };
   }
 
@@ -155,12 +171,16 @@ class Quote {
   get settings() {
     return [
       {
-        name: 'left',
-        icon: `<svg width="16" height="11" viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg" ><path d="M1.069 0H13.33a1.069 1.069 0 0 1 0 2.138H1.07a1.069 1.069 0 1 1 0-2.138zm0 4.275H9.03a1.069 1.069 0 1 1 0 2.137H1.07a1.069 1.069 0 1 1 0-2.137zm0 4.275h9.812a1.069 1.069 0 0 1 0 2.137H1.07a1.069 1.069 0 0 1 0-2.137z" /></svg>`,
+        name: QUOTE_SETTINGS.NO_CAPTION,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" height="20" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zM4 12c0-4.42 3.58-8 8-8 1.85 0 3.55.63 4.9 1.69L5.69 16.9C4.63 15.55 4 13.85 4 12zm8 8c-1.85 0-3.55-.63-4.9-1.69L18.31 7.1C19.37 8.45 20 10.15 20 12c0 4.42-3.58 8-8 8z"/></svg>`,
       },
       {
-        name: 'center',
-        icon: `<svg width="16" height="11" viewBox="0 0 16 11" xmlns="http://www.w3.org/2000/svg" ><path d="M1.069 0H13.33a1.069 1.069 0 0 1 0 2.138H1.07a1.069 1.069 0 1 1 0-2.138zm3.15 4.275h5.962a1.069 1.069 0 0 1 0 2.137H4.22a1.069 1.069 0 1 1 0-2.137zM1.069 8.55H13.33a1.069 1.069 0 0 1 0 2.137H1.07a1.069 1.069 0 0 1 0-2.137z"/></svg>`,
+        name: QUOTE_SETTINGS.WITH_CAPTION,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" height="24" viewBox="0 0 24 24" width="24"><path d="M0 0h24v24H0z" fill="none"/><path d="M19 5H5c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 12H5V7h14v10z"/></svg>`,
+      },
+      {
+        name: QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE,
+        icon: `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" aria-hidden="true" focusable="false" width="24" height="24" style="-ms-transform: rotate(360deg); -webkit-transform: rotate(360deg); transform: rotate(360deg);" preserveAspectRatio="xMidYMid meet" viewBox="0 0 24 24"><path d="M3 5v14h19V5H3m2 2h15v4H5V7m0 10v-4h4v4H5m6 0v-4h9v4h-9z"/></svg>`,
       },
     ];
   }
@@ -174,8 +194,8 @@ class Quote {
    *   api - Editor.js API
    *   readOnly - read-only mode flag
    */
-  constructor({ data, config, api, readOnly}) {
-    const { ALIGNMENTS, DEFAULT_ALIGNMENT } = Quote;
+  constructor({data, config, api, readOnly}) {
+    const {CAPTIONS, DEFAULT_CAPTIONS} = Quote;
 
     this.api = api;
     this.readOnly = readOnly;
@@ -185,10 +205,11 @@ class Quote {
 
     this.data = {
       text: data.text || '',
-      caption: data.caption || '',
-      alignment: Object.values(ALIGNMENTS).includes(data.alignment) && data.alignment ||
-      config.defaultAlignment ||
-      DEFAULT_ALIGNMENT,
+      captionLeft: data.captionLeft || '',
+      captionRight: data.captionRight || '',
+      imageUrl: data.imageUrl || null,
+      captionView: Object.values(CAPTIONS).includes(data.captionView) && data.captionView ||
+        DEFAULT_CAPTIONS,
     };
   }
 
@@ -198,21 +219,47 @@ class Quote {
    * @returns {Element}
    */
   render() {
-    const container = this._make('blockquote', [this.CSS.baseClass, this.CSS.wrapper]);
+    const container = this._make('blockquote', [
+      this.CSS.baseClass,
+      this.CSS.wrapper,
+      this.CSS[QUOTE_SETTINGS[this.data.captionView]]
+    ]);
     const quote = this._make('div', [this.CSS.input, this.CSS.text], {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
+      style: {
+        paddingRight: this.data.imageUrl ? '76px' : '12px'
+      }
     });
-    const caption = this._make('div', [this.CSS.input, this.CSS.caption], {
+    const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
+    const captionLeft = this._make('div', [this.CSS.input, this.CSS.captionLeft], {
       contentEditable: !this.readOnly,
-      innerHTML: this.data.caption,
+      innerHTML: this.data.captionLeft,
+    });
+    const captionRight = this._make('div', [this.CSS.input, this.CSS.captionRight], {
+      contentEditable: !this.readOnly,
+      innerHTML: this.data.captionRight,
+    });
+    const captionImage = this._make('img', [this.CSS.captionImage], {
+      contentEditable: false,
+      src: this.data.imageUrl,
+    });
+    const imageQuote = this._make('div', [this.CSS.imageQuote], {
+      contentEditable: false,
     });
 
     quote.dataset.placeholder = this.quotePlaceholder;
-    caption.dataset.placeholder = this.captionPlaceholder;
+    captionLeft.dataset.placeholder = this.captionPlaceholder;
+    captionRight.dataset.placeholder = this.captionPlaceholder;
 
     container.appendChild(quote);
-    container.appendChild(caption);
+    container.appendChild(imageQuote);
+    container.appendChild(captionImage);
+    captionWrapper.appendChild(captionLeft);
+    captionWrapper.appendChild(captionRight);
+    container.appendChild(captionWrapper);
+
+    this._container = container;
 
     return container;
   }
@@ -225,11 +272,15 @@ class Quote {
    */
   save(quoteElement) {
     const text = quoteElement.querySelector(`.${this.CSS.text}`);
-    const caption = quoteElement.querySelector(`.${this.CSS.caption}`);
+    const captionLeft = quoteElement.querySelector(`.${this.CSS.captionLeft}`);
+    const captionRight = quoteElement.querySelector(`.${this.CSS.captionRight}`);
+    const captionImage = quoteElement.querySelector(`.${this.CSS.captionImage}`);
 
     return Object.assign(this.data, {
       text: text.innerHTML,
-      caption: caption.innerHTML,
+      captionLeft: captionLeft.innerHTML,
+      captionRight: captionRight.innerHTML,
+      imageUrl: captionImage ? captionImage.getAttribute('src') : null,
     });
   }
 
@@ -241,10 +292,13 @@ class Quote {
       text: {
         br: true,
       },
-      caption: {
+      captionLeft: {
         br: true,
       },
-      alignment: {},
+      captionRight: {
+        br: true,
+      },
+      captionView: {},
     };
   }
 
@@ -256,17 +310,17 @@ class Quote {
    * @returns {HTMLDivElement}
    */
   renderSettings() {
-    const wrapper = this._make('div', [ this.CSS.settingsWrapper ], {});
+    const wrapper = this._make('div', [this.CSS.settingsWrapper], {});
     const capitalize = str => str[0].toUpperCase() + str.substr(1);
 
     this.settings
       .map(tune => {
         const el = this._make('div', this.CSS.settingsButton, {
           innerHTML: tune.icon,
-          title: `${capitalize(tune.name)} alignment`,
+          title: capitalize(tune.name.toLowerCase()).replace(/(_)/g, ' '),
         });
 
-        el.classList.toggle(this.CSS.settingsButtonActive, tune.name === this.data.alignment);
+        el.classList.toggle(this.CSS.settingsButtonActive, tune.name === this.data.captionView);
 
         wrapper.appendChild(el);
 
@@ -277,9 +331,9 @@ class Quote {
           this._toggleTune(this.settings[index].name);
 
           elements.forEach((el, i) => {
-            const { name } = this.settings[i];
+            const {name} = this.settings[i];
 
-            el.classList.toggle(this.CSS.settingsButtonActive, name === this.data.alignment);
+            el.classList.toggle(this.CSS.settingsButtonActive, name === this.data.captionView);
           });
         });
       });
@@ -294,7 +348,17 @@ class Quote {
    * @private
    */
   _toggleTune(tune) {
-    this.data.alignment = tune;
+    this.data.captionView = tune;
+
+    if (!Object.values(QUOTE_SETTINGS).includes(tune)) return;
+
+    const captionClasses = [
+      this.CSS[QUOTE_SETTINGS.NO_CAPTION],
+      this.CSS[QUOTE_SETTINGS.WITH_CAPTION],
+      this.CSS[QUOTE_SETTINGS.WITH_CAPTION_TEMPLATE],
+    ]
+    this._container.classList.remove(...captionClasses);
+    this._container.classList.add(this.CSS[tune]);
   }
 
   /**
