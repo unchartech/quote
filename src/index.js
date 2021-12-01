@@ -208,7 +208,7 @@ class Quote {
       captionLeft: data.captionLeft || '',
       captionRight: data.captionRight || '',
       imageUrl: data.imageUrl || null,
-      hasQuoteIcon: data.hasQuoteIcon || false,
+      hasQuoteIcon: data.hasQuoteIcon || true,
       captionView: Object.values(CAPTIONS).includes(data.captionView) && data.captionView ||
         DEFAULT_CAPTIONS,
     };
