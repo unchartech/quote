@@ -154,6 +154,7 @@ class Quote {
       captionRight: 'cdx-quote__caption--right',
       captionImage: 'cdx-quote__caption--image',
       imageQuote: 'cdx-quote__image--quote',
+      imageQuoteIndent: 'cdx-quote__image--quote--indent',
       settingsWrapper: 'cdx-quote-settings',
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
@@ -208,7 +209,7 @@ class Quote {
       captionLeft: data.captionLeft || '',
       captionRight: data.captionRight || '',
       imageUrl: data.imageUrl || null,
-      hasQuoteIcon: data.hasQuoteIcon || true,
+      noQuoteIcon: data.noQuoteIcon || false,
       captionView: Object.values(CAPTIONS).includes(data.captionView) && data.captionView ||
         DEFAULT_CAPTIONS,
     };
@@ -225,18 +226,20 @@ class Quote {
       this.CSS.wrapper,
       this.CSS[QUOTE_SETTINGS[this.data.captionView]]
     ]);
-    const quote = this._make('div', [this.CSS.input, this.CSS.text], {
+
+    const quoteMainClasses = [this.CSS.input, this.CSS.text];
+    if(!this.data.noQuoteIcon) {
+      quoteMainClasses.push(this.CSS.imageQuoteIndent)
+    }
+
+    const quote = this._make('div', quoteMainClasses, {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
       style: {
         paddingRight: this.data.imageUrl ? '76px' : '12px'
       }
     });
-    const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper], {
-      style: {
-        textIndent: this.data.hasQuoteIcon ? '28px' : '0'
-      }
-    });
+    const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
     const captionLeft = this._make('div', [this.CSS.input, this.CSS.captionLeft], {
       contentEditable: !this.readOnly,
       innerHTML: this.data.captionLeft,
@@ -258,7 +261,7 @@ class Quote {
     captionRight.dataset.placeholder = this.captionPlaceholder;
 
     container.appendChild(quote);
-    if(this.data.hasQuoteIcon) {
+    if(!this.data.noQuoteIcon) {
       container.appendChild(imageQuote);
     }
     if(this.data.imageUrl) {

@@ -34,6 +34,10 @@
 
 }
 
+.cdx-quote__image--quote--indent {
+    text-indent: 28px;
+}
+
 .cdx-quote__text {
     min-height: 58px;
     margin-bottom: 0;
