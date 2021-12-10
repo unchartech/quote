@@ -234,16 +234,12 @@ class Quote {
       quoteMainClasses.push(this.CSS.imageQuoteIndent)
     }
 
-    console.log(this.data.imageUrl);
     const url = this.data.imageUrl;
     const paddingClass = !!url ? this.CSS.paddingClassWithUrl : this.CSS.paddingClassWithourUrl;
     quoteMainClasses.push(paddingClass)
     const quote = this._make('div', quoteMainClasses, {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
-      style: {
-        'padding-right': !!url ? '76px' : '12px'
-      }
     });
     const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
     const captionLeft = this._make('div', [this.CSS.input, this.CSS.captionLeft], {
@@ -260,7 +256,8 @@ class Quote {
     });
 
     captionImage.addEventListener('error', function () {
-      this.style.display='none'
+      this.style.display = 'none';
+      quote.style.paddingRight = '12px';
     });
 
     const imageQuote = this._make('div', [this.CSS.imageQuote], {
