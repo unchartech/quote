@@ -155,6 +155,8 @@ class Quote {
       captionImage: 'cdx-quote__caption--image',
       imageQuote: 'cdx-quote__image--quote',
       imageQuoteIndent: 'cdx-quote__image--quote--indent',
+      paddingClassWithUrl: 'cdx-quote__padding--with-url',
+      paddingClassWithourUrl: 'cdx-quote__padding--without-url',
       settingsWrapper: 'cdx-quote-settings',
       settingsButton: this.api.styles.settingsButton,
       settingsButtonActive: this.api.styles.settingsButtonActive,
@@ -232,11 +234,15 @@ class Quote {
       quoteMainClasses.push(this.CSS.imageQuoteIndent)
     }
 
+    console.log(this.data.imageUrl);
+    const url = this.data.imageUrl;
+    const paddingClass = !!url ? this.CSS.paddingClassWithUrl : this.CSS.paddingClassWithourUrl;
+    quoteMainClasses.push(paddingClass)
     const quote = this._make('div', quoteMainClasses, {
       contentEditable: !this.readOnly,
       innerHTML: this.data.text,
       style: {
-        paddingRight: this.data.imageUrl ? '76px' : '12px'
+        'padding-right': !!url ? '76px' : '12px'
       }
     });
     const captionWrapper = this._make('div', [this.CSS.baseClass, this.CSS.captionWrapper]);
@@ -252,6 +258,11 @@ class Quote {
       contentEditable: false,
       src: this.data.imageUrl,
     });
+
+    captionImage.addEventListener('error', function () {
+      this.style.display='none'
+    });
+
     const imageQuote = this._make('div', [this.CSS.imageQuote], {
       contentEditable: false,
     });
